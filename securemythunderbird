@@ -1,0 +1,303 @@
+#!/bin/sh
+
+DISABLE_INITIAL_NOTIFICATIONS=1
+DISABLE_HISTORY=1
+DISABLE_MISC_REMOTE=1
+DISABLE_JAVASCRIPT=1
+
+DISABLE_FONTS=1
+DISABLE_GEOLOCATION=1
+DISABLE_HARDWARE_ACCELERATION=1
+DISABLE_WEBGL=1
+DISABLE_WEBRTC=1
+
+DISABLE_PLUGINS=1
+
+DISABLE_HTML=1
+DISABLE_REMOTE_IMAGES=1
+DISABLE_USERAGENT=1
+
+NETWORK_HARDEN=1
+TLS_HARDEN=1
+TLS_OCSP_REQUIRE=0
+TLS_DISABLE_ARCFOUR_CIPHERS=1
+TLS_DISABLE_TRIPLEDES_CIPHERS=1
+TLS_DISABLE_DHE_CIPHERS=1
+TLS_DISABLE_NONPFS_CIPHERS=1
+TLS_VERSION_MIN=3
+
+CHAT_PRIVACY=1
+
+if [ $# -eq 1 ]; then
+    if [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]; then
+        cat << EOF
+Usage: securemythunderbird
+ or:   securemythunderbird CONFIG_FILE
+
+securemythunderbird enhances the security and privacy of Thunderbird. It
+generates user preferences to standard output. Save the output as 'user.js' in
+your Thunderbird profile (ie, ~/.thunderbird/xxxxxxxx.default/user.js) and
+restart Thunderbird.
+EOF
+    exit 0
+    fi
+
+    conf="`readlink -f "$1"`"
+    if [ ! -e "$conf" ]; then
+        printf '%s\n' "securemythunderbird: cannot access '$conf': No such file"
+        printf '%s\n' "Try 'securemythunderbird -h' for more information."
+        exit 1
+    else
+        . "$conf"
+    fi
+fi
+
+cat << EOF
+/* First line must be a comment */
+
+EOF
+
+if [ "$DISABLE_INITIAL_NOTIFICATIONS" = 1 ]; then
+    cat << EOF
+// Disable initial notifications
+user_pref("browser.search.update", false);
+user_pref("calender.integration.notify", false);
+user_pref("general.warnOnAboutConfig", false);
+user_pref("mail.provider.enabled", false);
+user_pref("mail.rights.version", 1);
+user_pref("mail.shell.checkDefaultClient", false);
+user_pref("mailnews.start_page.enabled", false);
+
+EOF
+fi
+
+if [ "$DISABLE_HISTORY" = 1 ]; then
+    cat << EOF
+// Disable history
+user_pref("browser.download.manager.addToRecentDocs", false);
+user_pref("browser.download.manager.retention", 0);
+user_pref("dom.storage.enabled", false);
+user_pref("layout.css.visited_links_enabled", false);
+user_pref("network.cookie.cookieBehavior", 2);
+user_pref("network.cookie.lifetimePolicy", 2);
+user_pref("places.history.enabled", false);
+
+EOF
+fi
+
+if [ "$DISABLE_MISC_REMOTE" = 1 ]; then
+    cat << EOF
+// Disable miscellaneous remote connections
+user_pref("beacon.enabled", false);
+user_pref("browser.send_pings", false);
+user_pref("datareporting.policy.dataSubmissionEnabled", false);
+user_pref("extensions.getAddons.cache.enabled", false);
+user_pref("network.allow-experiments", false);
+user_pref("toolkit.telemetry.enabled", false);
+
+EOF
+fi
+
+if [ "$DISABLE_JAVASCRIPT" = 1 ]; then
+    cat << EOF
+// Disable JavaScript
+user_pref("javascript.enabled", false);
+user_pref("javascript.options.asmjs", false);
+user_pref("javascript.options.baselinejit", false);
+user_pref("javascript.options.ion", false);
+
+EOF
+fi
+
+if [ "$DISABLE_FONTS" = 1 ]; then
+    cat << EOF
+// Disable fonts
+user_pref("browser.display.use_document_fonts", 0);
+user_pref("gfx.downloadable_fonts.enabled", false);
+user_pref("gfx.font_rendering.graphite.enabled", false);
+user_pref("gfx.font_rendering.opentype_svg.enabled", false);
+
+EOF
+fi
+
+if [ "$DISABLE_GEOLOCATION" = 1 ]; then
+    cat << EOF
+// Disable geolocation
+user_pref("browser.search.geoSpecificDefaults", false);
+user_pref("browser.search.geoip.url", "");
+user_pref("geo.enabled", false);
+user_pref("geo.wifi.uri", "");
+
+EOF
+fi
+
+if [ "$DISABLE_HARDWARE_ACCELERATION" = 1 ]; then
+    cat << EOF
+// Disable hardware acceleration
+user_pref("layers.acceleration.disabled", true);
+
+EOF
+fi
+
+if [ "$DISABLE_WEBGL" = 1 ]; then
+    cat << EOF
+// Disable WebGL
+user_pref("webgl.disable-extensions", true);
+user_pref("webgl.disabled", true);
+user_pref("webgl.min_capability_mode", true);
+
+EOF
+fi
+
+if [ "$DISABLE_WEBRTC" = 1 ]; then
+    cat << EOF
+// Disable WebRTC
+user_pref("media.getusermedia.screensharing.allowed_domains", "");
+user_pref("media.getusermedia.screensharing.enabled", false);
+user_pref("media.navigator.enabled", false);
+user_pref("media.navigator.video.enabled", false);
+user_pref("media.peerconnection.enabled", false);
+user_pref("media.peerconnection.video.enabled", false);
+
+EOF
+fi
+
+if [ "$DISABLE_PLUGINS" = 1 ]; then
+    cat << EOF
+// Disable plugins
+user_pref("plugin.default.state", 0);
+user_pref("plugin.state.flash", 0);
+user_pref("plugin.state.java", 0);
+user_pref("plugins.enumerable_names", "");
+user_pref("security.xpconnect.plugin.unrestricted", false);
+
+EOF
+fi
+
+if [ "$DISABLE_HTML" = 1 ]; then
+    cat << EOF
+// Disable HTML
+user_pref("mail.inline_attachments", false);
+user_pref("mailnews.display.disallow_mime_handlers", 3);
+user_pref("mailnews.display.html_as", 1);
+user_pref("mailnews.display.prefer_plaintext", true);
+user_pref("mailnews.message_display.allow_plugins", false);
+user_pref("rss.display.prefer_plaintext", false);
+
+EOF
+fi
+
+if [ "$DISABLE_REMOTE_IMAGES" = 1 ]; then
+    cat << EOF
+// Disable remote images
+user_pref("dom.disable_image_src_set", true);
+user_pref("permissions.default.image", false);
+
+EOF
+fi
+
+if [ "$DISABLE_USERAGENT" = 1 ]; then
+    cat << EOF
+// Disable useragent
+user_pref("general.useragent.override", "");
+
+EOF
+fi
+
+if [ "$NETWORK_HARDEN" = 1 ]; then
+    cat << EOF
+// Network hardening
+user_pref("network.IDN_show_punycode", true);
+user_pref("network.dns.disablePrefetch", true);
+user_pref("network.http.sendRefererHeader", 0);
+user_pref("network.http.speculative-parallel-limit", 0);
+user_pref("network.predictor.enabled", false);
+user_pref("network.prefetch-next", false);
+user_pref("network.proxy.socks_remote_dns", true);
+
+EOF
+fi
+
+if [ "$TLS_HARDEN" = 1 ]; then
+    cat << EOF
+// TLS security
+user_pref("security.cert_pinning.enforcement_level", 2);
+user_pref("security.mixed_content.block_active_content", true);
+user_pref("security.mixed_content.block_display_content", true);
+user_pref("security.ssl.treat_unsafe_negotiation_as_broken", true);
+
+EOF
+fi
+
+if [ "$TLS_OCSP_REQUIRE" = 1 ]; then
+    cat << EOF
+// Require OCSP
+user_pref("security.OCSP.require", true);
+
+EOF
+fi
+
+if [ "$TLS_DISABLE_NONPFS_CIPHERS" = 1 ]; then
+    TLS_DISABLE_ARCFOUR_CIPHERS=1
+    TLS_DISABLE_TRIPLEDES_CIPHERS=1
+    cat << EOF
+// Disable TLS ciphers that do not utilize perfect forward secrecy
+user_pref("security.ssl3.rsa_aes_128_sha", false);
+user_pref("security.ssl3.rsa_aes_256_sha", false);
+
+EOF
+fi
+
+if [ "$TLS_DISABLE_ARCFOUR_CIPHERS" = 1 ]; then
+    cat << EOF
+// Disable TLS RC4 ciphers
+user_pref("security.tls.unrestricted_rc4_fallback", false);
+user_pref("security.ssl3.rsa_rc4_128_sha", false);
+user_pref("security.ssl3.rsa_rc4_128_md5", false);
+user_pref("security.ssl3.ecdhe_rsa_rc4_128_sha", false);
+user_pref("security.ssl3.ecdhe_ecdsa_rc4_128_sha", false);
+
+EOF
+fi
+
+if [ "$TLS_DISABLE_TRIPLEDES_CIPHERS" = 1 ]; then
+    cat << EOF
+// Disable TLS 3DES ciphers
+user_pref("security.ssl3.rsa_des_ede3_sha", false);
+
+EOF
+fi
+
+if [ "$TLS_DISABLE_DHE_CIPHERS" = 1 ]; then
+    cat << EOF
+// Disable DHE ciphers to protect against weak DH groups
+user_pref("security.ssl3.dhe_rsa_aes_128_sha", false);
+user_pref("security.ssl3.dhe_rsa_aes_256_sha", false);
+
+EOF
+fi
+
+if [ "$TLS_VERSION_MIN" -gt 0 ]; then
+    cat << EOF
+// TLS minimum protocol version
+user_pref("security.tls.version.min", $TLS_VERSION_MIN);
+
+EOF
+fi
+
+if [ "$CHAT_PRIVACY" = 1 ]; then
+    cat << EOF
+// Enhance chat privacy
+user_pref("purple.logging.log_chats", false);
+user_pref("purple.logging.log_ims", false);
+user_pref("purple.logging.log_system", false);
+user_pref("purple.conversations.im.send_typing", false);
+user_pref("messenger.startup.action", 0); // disable autostart
+user_pref("messenger.status.reportIdle", false);
+user_pref("messenger.status.awayWhenIdle", false);
+user_pref("messenger.conversations.autoAcceptChatInvitations", false);
+user_pref("messenger.options.filterMode", 0); // do not format incoming msgs
+
+EOF
+fi
+
